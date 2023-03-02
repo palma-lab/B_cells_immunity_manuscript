@@ -2335,27 +2335,32 @@ path = ""
 analysis = Analyzer(r01_base, metaFeatures, datesFeatures, catFeatures)
 
 #Plots in manuscript
-#analysis.figure_1a()
-#analysis.figure_1b()
-#analysis.figure_1c()
-#analysis.figure_1d()
-#analysis.figure_1e()
-#analysis.figure_1f()
-#analysis.figure_1g()
-#analysis.figure_2a()
-#analysis.figure_2b()
-#analysis.figure_3a()
-#analysis.figure_3b()
-#analysis.figure_3c()
-#analysis.make_pca_df(save = True, outFile = f"{path}R01_DB_PCA.xlsx")
-#analysis.train_nested_xgb(outFile = f"{path}model_xgb")    
-#analysis.supp_table_2()
-#analysis.supp_figure_3a()
-#analysis.supp_figure_3b()
-#analysis.supp_figure_3c()
-#analysis.supp_figure_PWC()
-#analysis.supp_figure_entry_corr()
+analysis.figure_1a()
+analysis.figure_1b()
+analysis.figure_1c()
+analysis.figure_1d()
+analysis.figure_1e()
+analysis.figure_1f()
+analysis.figure_1g()
+analysis.figure_2a()
+analysis.figure_2b()
+analysis.figure_3a()
+analysis.figure_3b()
+analysis.figure_3c()
 
+#create dataframe for R PCA analysis
+analysis.make_pca_df(save = True, outFile = f"{path}R01_DB_PCA.xlsx")
+
+#model training, computationally expensive
+analysis.train_nested_xgb(outFile = f"{path}model_xgb")    
+analysis.supp_table_2()
+analysis.supp_figure_3a()
+analysis.supp_figure_3b()
+analysis.supp_figure_3c()
+analysis.supp_figure_PWC()
+analysis.supp_figure_entry_corr()
+
+#OPENING FINAL TRAINED MODEL AND PLOTTING RESULTS
 with open(f"{path}model_xgb_final.sav", 'rb') as f:
   model = pickle.load(f)
 
