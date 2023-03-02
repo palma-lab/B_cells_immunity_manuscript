@@ -460,7 +460,7 @@ class Analyzer():
         inner_dict["p-adj"] = np.format_float_scientific(inner_dict["p-adj"], 2)
       return de_mark
   
-  def supplementary_table_2(self, print_all = True):
+  def suppl_table_2(self, print_all = True):
     time_points = self.time_points
     de_final_res = {tp: {} for tp in time_points}
 
@@ -487,7 +487,7 @@ class Analyzer():
   
     return table_df
 
-  def make_pca_df(self):
+  def make_pca_df(self, save = False, outFile = None):
     pca_df = self.df[list(self.metadata()[:3]) + [self.df.columns[2]] + [self.df.columns[8]] + [self.df.columns[12]] + list(list(self.facs_feat())) + list(self.df.columns[-51:-45]) + ["AGE of ART initiation in days"] + ["Entry Viremia"] + ["HIV cp/mL"] + ["CD4%"] + ["WHO stage"] + ["Age"]]
 
     pca_df = pca_df[pca_df[self.facs_feat()].isnull().sum(axis = 1) <= (len(self.facs_feat())-1)]
@@ -515,11 +515,14 @@ class Analyzer():
 
     pca_df = pca_df[pca_df["Age"].isin(["entry", 5., 10., 18., 19.])]
     pca_df.drop(labels = "Age", axis = 1)
+    
+    if save and outFile is not None:
+        with pd.ExcelWriter(f"{outFile}",
+                            datetime_format = 'YYYY-MM-DD',
+                            ) as writer:
+            pca_df.to_excel(writer, "Sheet1", index = False)
+            
     return pca_df
-    #with pd.ExcelWriter("/content/gdrive/MyDrive/R01/New_results/R01_DB_PCA_ready_rev.xlsx",
-    #                    datetime_format = 'YYYY-MM-DD',
-    #                    ) as writer:
-    #  pca_df.to_excel(writer, "Sheet1", index = False)
 
   def make_ml_dataset(self):
     #retaining only datas with nonmissing values in FACS data
@@ -1759,18 +1762,37 @@ class Analyzer():
         plt.tight_layout()
         plt.show()
 
-  def figure_4(self):
-    #Plot results of ML model
-    df = self.make_ml_dataset()
-    X = df.drop(columns = ["TT Response"], inplace = False)
-    y = df["TT Response"]
-    #Predict and plot result
-    y_pred = model.predict_proba(X)
-    binary_performances(y, y_pred, outName="prov2_CLEANED")
-
-  def supp_figure_2a(self): #Measles Serology ##########################################################################à
+  def supp_figure_3a(self): 
     fig, ax = plt.subplots(sharex = True, figsize = (37, 15))
+    time_points = [9., 10., 18., 19.]
+    col = ["Measles Serology"]
+    #DE analysis
+    de_final_res = {tp: {} for tp in time_points}
+    for tp in de_final_res:
+      de_final_res[tp] = self.test_groups(self.heu_df[self.heu_df["Age"] == tp], self.hei_df[self.hei_df["Age"] == tp], col, all = True)
 
+    #Archivio differenze ad ogni mese
+    g3_de_final_res = {tp: {} for tp in [18., 19.]}
+
+    meas_heu_g3_df = self.heu_g3_df[~self.heu_g3_df["Measles Serology"].isna()]
+    meas_hei_g3_df = self.hei_g3_df[~self.hei_g3_df["Measles Serology"].isna()]
+    
+    #Testo differenze ad ogni mese tra le categorie
+    for tp in g3_de_final_res:
+      g3_de_final_res[tp] = self.test_groups(meas_heu_g3_df[meas_heu_g3_df["Age"] == tp], meas_hei_g3_df[meas_hei_g3_df["Age"] == tp], ["Measles Serology"], all = True)
+
+    #Testing differences in nog3 group
+    nog3_de_final_res = {tp: {} for tp in time_points}
+
+    meas_heu_nog3_df = self.heu_nog3_df[~self.heu_nog3_df["Measles Serology"].isna()]
+    meas_heu_nog3_df.replace({'Age' : {"entry": 1., 2.: 1.}}, inplace = True)
+    meas_hei_nog3_df = self.hei_nog3_df[~self.hei_nog3_df["Measles Serology"].isna()]
+    meas_hei_nog3_df.replace({'Age' : {"entry": 1., 2.: 1.}}, inplace = True)
+
+    for tp in nog3_de_final_res:
+      nog3_de_final_res[tp] = self.test_groups(meas_heu_nog3_df[meas_heu_nog3_df["Age"] == tp], meas_hei_nog3_df[meas_hei_nog3_df["Age"] == tp], col)
+    
+    #Plotting code
     base_df = self.df[self.df["Age"].isin([9., 10., 18., 19.])]
 
     base_df = base_df[base_df["Measles Serology"].notna()].sort_values(by = ["STUDY ID"])
@@ -1781,6 +1803,7 @@ class Analyzer():
 
     base_df["utils"] = base_df[["Group", "EXTRA VACCINATION"]].apply(tuple, axis = 1)
 
+    #pvalues and pairs for statannotation
     pairs = []
     for b in np.sort(base_df["Age"].unique()):
       if "Measles Serology" in de_final_res[b]:
@@ -1869,7 +1892,7 @@ class Analyzer():
     pvalues = [0.000565,
                0.000708]
 
-    annotator = Annotator(ax, pairs, data = ciaone, x = "Age", y = "Measles Serology", hue = "Group", hue_order = ["HEU", "HEI"], order = [9., 10., 18., 19.], line_offset_to_box = 0.2)
+    annotator = Annotator(ax, pairs, data = base_df, x = "Age", y = "Measles Serology", hue = "Group", hue_order = ["HEU", "HEI"], order = [9., 10., 18., 19.], line_offset_to_box = 0.2)
     annotator.set_pvalues(pvalues)
     annotator.configure(loc = "outside", text_format = "full", line_width = 3, fontsize = "medium", show_test_name = False)
 
@@ -1884,20 +1907,20 @@ class Analyzer():
                  0.007,
                  0.0117]
 
-    annotator_2 = Annotator(ax, pairs_i, data = ciaone, x = "Age", y = "Measles Serology", hue= "utils", hue_order = [('HEU', 0), ('HEU', 1), ('HEI', 0), ('HEI', 1)], order = [9., 10., 18., 19.], line_offset_to_box = 0.4)
+    annotator_2 = Annotator(ax, pairs_i, data = base_df, x = "Age", y = "Measles Serology", hue= "utils", hue_order = [('HEU', 0), ('HEU', 1), ('HEI', 0), ('HEI', 1)], order = [9., 10., 18., 19.], line_offset_to_box = 0.4)
     annotator_2.set_pvalues(pvalues_i)
     annotator_2.configure(loc = "inside", text_format = "full", fontsize = "medium", show_test_name = False)
     annotator_2.annotate()
 
 
     h,l = ax.get_legend_handles_labels()
-    plt.legend(h[4:],['HEU', 'HEU (e.d.)', "HEI", "HEI (e.d.)"], prop={'size': 25}, markerscale=2.)
+    plt.legend(h[:4],['HEU', 'HEU (e.d.)', "HEI", "HEI (e.d.)"], prop={'size': 25}, markerscale=2.)
     plt.ylabel("Measles Ab mlU/mL", labelpad = 40)
     plt.xlabel("Age in months", labelpad = 40)
     plt.title("Measles Serology in TARA cohort", fontsize = 50, y = 1, pad = 150, fontname="Times New Roman Bold")
     plt.tight_layout()
 
-  def supp_figure_2b(self): #WB score at 9 mnth
+  def supp_figure_3b(self): #WB score at 9 mnth
     #Testing differences between HEI TTP and HEI TT UP in WB score
     hei_final_res_resp = {}
     feature = ["WB score"]
@@ -2020,7 +2043,7 @@ class Analyzer():
     plt.legend(h[:2],['HEI TT UP', 'HEI TT P'], prop={'size': 30}, markerscale=2., title_fontsize = "xx-large", fancybox = True, loc = "best")
     fig.show()
 
-  def supp_figure_2c(self):
+  def supp_figure_3c(self):
     #Durability of TT Response in HEI and HEU
     #selection of data based on time points 
     data_heu = self.heu_df.dropna(subset=['Tetanous Serology'])
@@ -2278,4 +2301,75 @@ class Analyzer():
     plt.show()
     
    
-######  
+                                                           ######################################
+                                                           #               USAGE                #
+                                                           ######################################
+
+         
+# PREPARING INPUT DATA
+a = range(7)
+age = 9
+b = 14 #Patient Type
+c = 15
+d = range(19, 39)
+e = range(65, 85)
+f = 84 #Group
+g = [-10, -7, -6, -3, -2, -1] 
+
+
+metaFeatures = [0, 9, 84, 1, 2, 3, 4, 5, 6, 14, 15, 16]
+for i in d:
+  metaFeatures += [i]
+for i in e:
+  metaFeatures += [i]
+for i in g:
+  metaFeatures += [i]
+
+datesFeatures = [3, 4, 5, 25, 27, 30, 31, 34]
+catFeatures = [6]# (sex)
+
+r01_base = "R01_DB.xlsx"
+path = ""
+
+#initializing class
+analysis = Analyzer(r01_base, metaFeatures, datesFeatures, catFeatures)
+
+#Plots in manuscript
+#analysis.figure_1a()
+#analysis.figure_1b()
+#analysis.figure_1c()
+#analysis.figure_1d()
+#analysis.figure_1e()
+#analysis.figure_1f()
+#analysis.figure_1g()
+#analysis.figure_2a()
+#analysis.figure_2b()
+#analysis.figure_3a()
+#analysis.figure_3b()
+#analysis.figure_3c()
+#analysis.make_pca_df(save = True, outFile = f"{path}R01_DB_PCA.xlsx")
+#analysis.train_nested_xgb(outFile = f"{path}model_xgb")    
+#analysis.supp_table_2()
+#analysis.supp_figure_3a()
+#analysis.supp_figure_3b()
+#analysis.supp_figure_3c()
+#analysis.supp_figure_PWC()
+#analysis.supp_figure_entry_corr()
+
+with open(f"{path}model_xgb_final.sav", 'rb') as f:
+  model = pickle.load(f)
+
+df = analysis.make_ml_dataset()
+X = df.drop(columns = ["TT Response"], inplace = False)
+y = df["TT Response"]
+
+
+results = model_selection.cross_val_score(model, X[['Bmem/CD21-IgD-/CD25 %', 'unswMem/IgG-IgM+ %']], y, cv = LeaveOneOut())
+print("accuracy :")
+print(results.mean())
+print(results.std())
+
+#Figure 4 panel 2 top
+analysis.test_ml_algorithms(save = True, outFile = "f{path}lazypredict_ml_tests.png")
+#Figure 4 panel 2 bottom
+analysis.plot_model_feat(f"{path}model_xgb_final.sav", X=X[['Bmem/CD21-IgD-/CD25 %', 'unswMem/IgG-IgM+ %']], y = y, save=True, outName=f"{path}")
