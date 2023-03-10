@@ -2309,6 +2309,7 @@ class Analyzer():
 metaFeatures = list(range(3, 41)) #columns with metadata
 catFeatures = [2] #(sex)
 
+#R01_DB.xlsx file is available at Mendeley DOI:10.17632/vhrbx46s97.1
 r01_base = "R01_DB.xlsx"
 path = ""
 
