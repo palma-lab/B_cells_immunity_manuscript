@@ -913,7 +913,7 @@ class Analyzer():
 
     pairs = [((1.0, 'HEU'), (1.0, 'HEI')), ((1.0, 'HEU'), (1.0, 'CS')), ((1.0, 'HEI'), (1.0, 'CS')),
              ((5.0, 'HEU'), (5.0, 'HEI')), ((10.0, 'HEU'), (10.0, 'HEI')), ((18.0, 'HEU'), (18.0, 'HEI'))]
-    pvalues = ["p = 0.001", "p < 0.001", "p < 0.001", "p = 0.006", "p = 0.019", "p = 0.039"]
+    pvalues = ["p = 0.002", "p < 0.001", "p < 0.001", "p = 0.006", "p = 0.019", "p = 0.039"]
 
     annotator = Annotator(ax, pairs, data=base_df, x="Age", y="Tetanus Serology",
                           hue="Group", hue_order=["CS", "HEU", "HEI"], order=[1., 5., 9., 10., 18.], line_offset_to_box=0.2)
