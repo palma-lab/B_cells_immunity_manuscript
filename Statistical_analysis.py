@@ -477,7 +477,7 @@ class Analyzer():
                       "VISIT N", 
                       "AGE IN MONTHS", 
                       "AGE IN DAYS"] + list(list(self.facs_feat())) + ["Measles Serology", 
-                                                                       "Tetanous Serology", 
+                                                                       "Tetanus Serology", 
                                                                        "Measles Response", 
                                                                        "TT Response", 
                                                                        "WB score", 
@@ -501,7 +501,7 @@ class Analyzer():
         id = row["STUDY ID"]
         if type(row["TT Response"]) == float:
           pca_df.at[ind, "TT Response"] = self.df[(self.df["STUDY ID"] == id) & (self.df["Age"] == 9)]["TT Response"].values[0]
-          pca_df.at[ind, "Tetanous Serology"] = self.df[(self.df["STUDY ID"] == id) & (self.df["Age"] == 9)]["Tetanous Serology"].values[0]
+          pca_df.at[ind, "Tetanus Serology"] = self.df[(self.df["STUDY ID"] == id) & (self.df["Age"] == 9)]["Tetanus Serology"].values[0]
 
     #Assigning values measured at 2 months as entry, if no entry measurement
     for ind, row in pca_df.iterrows():
@@ -533,7 +533,7 @@ class Analyzer():
         id = row["STUDY ID"]
         if type(row["TT Response"]) == float:
           ml_df.at[ind, "TT Response"] = self.df[(self.df["STUDY ID"] == id) & (self.df["Age"] == 9)]["TT Response"].values[0]
-          ml_df.at[ind, "Tetanous Serology"] = self.df[(self.df["STUDY ID"] == id) & (self.df["Age"] == 9)]["Tetanous Serology"].values[0]
+          ml_df.at[ind, "Tetanus Serology"] = self.df[(self.df["STUDY ID"] == id) & (self.df["Age"] == 9)]["Tetanus Serology"].values[0]
 
     #Assigning values measured at 2 months as entry, if no entry measurement
     for ind, row in ml_df.iterrows():
@@ -802,8 +802,8 @@ class Analyzer():
     binary_performances(y, y_pred, outName=f"{outName}_bin_perf.png")
 
   def figure_1a(self):
-    '''figure 1a represents the results of the Tetanous Serology distributions betwenn HEI, HEU and CS at each time point'''
-    serology = "Tetanous Serology"
+    '''figure 1a represents the results of the Tetanus Serology distributions betwenn HEI, HEU and CS at each time point'''
+    serology = "Tetanus Serology"
     time_points = ["entry", 2., 5., 9., 10., 18.]
     #test group funtion to perform statistical analysis of the distributions
     de_final_res = {tp: self.test_groups(self.heu_df[self.heu_df["Age"] == tp], 
@@ -829,7 +829,7 @@ class Analyzer():
     #Plotting code
     base_df = self.df[self.df["Age"].isin(time_points)]
     base_df["utils"] = base_df[["Group", "EXTRA VACCINATION"]].apply(tuple, axis = 1)
-    base_df = base_df[base_df["Tetanous Serology"].notna()].sort_values(by = ["STUDY ID"])
+    base_df = base_df[base_df["Tetanus Serology"].notna()].sort_values(by = ["STUDY ID"])
     base_df.replace({"entry": 1., 2.: 1.}, inplace = True)
 
     #pairs and pvalues for statannotation
@@ -837,7 +837,7 @@ class Analyzer():
     for b in np.sort(base_df["Age"].unique()):
         if b == 1.:
             b = "entry"
-        if "Tetanous Serology" in de_final_res[b]:
+        if "Tetanus Serology" in de_final_res[b]:
             res_t = tuple((b, i) for i in ["HEU", "HEI"])
             pairs.append((res_t[0], res_t[1]))
 
@@ -845,14 +845,14 @@ class Analyzer():
     for age in np.sort(base_df["Age"].unique()):
       if age == 1.:
         age = "entry"
-      if "Tetanous Serology" in de_final_res[age].keys():
-        pvalues.append(float(de_final_res[age]["Tetanous Serology"]["p-value"]))
+      if "Tetanus Serology" in de_final_res[age].keys():
+        pvalues.append(float(de_final_res[age]["Tetanus Serology"]["p-value"]))
 
     pairs_heu = []
     for b in np.sort(base_df["Age"].unique()):
         if b == 1.:
             b = "entry"
-        if "Tetanous Serology" in cs_heu_de_final_res[b]:
+        if "Tetanus Serology" in cs_heu_de_final_res[b]:
             res_heu = tuple((b, i) for i in ["HEU", "CS"])
             pairs_heu.append((res_heu[0], res_heu[1]))
 
@@ -860,14 +860,14 @@ class Analyzer():
     for age in np.sort(base_df["Age"].unique()):
       if age == 1.:
         age = "entry"
-      if "Tetanous Serology" in cs_heu_de_final_res[age].keys():
-        pvalues_heu.append(float(cs_heu_de_final_res[age]["Tetanous Serology"]["p-value"]))
+      if "Tetanus Serology" in cs_heu_de_final_res[age].keys():
+        pvalues_heu.append(float(cs_heu_de_final_res[age]["Tetanus Serology"]["p-value"]))
 
     pairs_hei = []
     for b in np.sort(base_df["Age"].unique()):
         if b == 1.:
             b = "entry"
-        if "Tetanous Serology" in cs_hei_de_final_res[b]:
+        if "Tetanus Serology" in cs_hei_de_final_res[b]:
             res_hei = tuple((b, i) for i in ["HEI", "CS"])
             pairs_hei.append((res_hei[0], res_hei[1]))
 
@@ -875,8 +875,8 @@ class Analyzer():
     for age in np.sort(base_df["Age"].unique()):
       if age == 1.:
         age = "entry"
-      if "Tetanous Serology" in cs_hei_de_final_res[age].keys():
-        pvalues_hei.append(float(cs_hei_de_final_res[age]["Tetanous Serology"]["p-value"]))
+      if "Tetanus Serology" in cs_hei_de_final_res[age].keys():
+        pvalues_hei.append(float(cs_hei_de_final_res[age]["Tetanus Serology"]["p-value"]))
     
     sns.set_style("white")
     sns.set_context("poster")
@@ -884,14 +884,14 @@ class Analyzer():
     #plotting code
     fig, ax = plt.subplots(sharex = True, figsize = (28, 15))
 
-    sns.stripplot(data=base_df, x="Age", y="Tetanous Serology",
+    sns.stripplot(data=base_df, x="Age", y="Tetanus Serology",
                   edgecolor="black", linewidth=2, hue="Group",
                   hue_order=["CS", "HEU", "HEI"], palette=["#008000", "#1C86EE", "#FF8C00"],
                   dodge=True, size=15, ax=ax)
 
     sns.boxplot(showmeans=True, meanline=True, meanprops={'color': 'k', 'ls': '--', 'lw': 3},
                 medianprops={'visible': False}, whiskerprops={'visible': False}, zorder=10,
-                x="Age", y="Tetanous Serology", hue="Group", hue_order=["CS", "HEU", "HEI"],
+                x="Age", y="Tetanus Serology", hue="Group", hue_order=["CS", "HEU", "HEI"],
                 data=base_df, showfliers=False, showbox=False, showcaps=False, ax=ax)
 
     sns.despine(offset=10, trim=True)
@@ -915,7 +915,7 @@ class Analyzer():
              ((5.0, 'HEU'), (5.0, 'HEI')), ((10.0, 'HEU'), (10.0, 'HEI')), ((18.0, 'HEU'), (18.0, 'HEI'))]
     pvalues = ["p = 0.001", "p < 0.001", "p < 0.001", "p = 0.006", "p = 0.019", "p = 0.039"]
 
-    annotator = Annotator(ax, pairs, data=base_df, x="Age", y="Tetanous Serology",
+    annotator = Annotator(ax, pairs, data=base_df, x="Age", y="Tetanus Serology",
                           hue="Group", hue_order=["CS", "HEU", "HEI"], order=[1., 5., 9., 10., 18.], line_offset_to_box=0.2)
     annotator.set_custom_annotations(pvalues)
     annotator.configure(loc="inside", text_format="full", line_width=3, fontsize="large", show_test_name=False)
@@ -930,10 +930,10 @@ class Analyzer():
 
     # Create pivot table and add it below the scatter plot
     threshold = 0.5
-    base_df['Above/Below'] = ['Above' if value >= threshold else "Borderline" if 0.1 < value < threshold else 'Below' for value in base_df['Tetanous Serology']]
+    base_df['Above/Below'] = ['Above' if value >= threshold else "Borderline" if 0.1 < value < threshold else 'Below' for value in base_df['Tetanus Serology']]
     base_df_n = base_df.drop(base_df[(base_df["Group"] == "CS") & (base_df["Age"] != 1.)].index)
     pivot = base_df_n.pivot_table(index='Above/Below', columns=['Age', "Group"],
-                      values='Tetanous Serology', aggfunc=['count'])
+                      values='Tetanus Serology', aggfunc=['count'])
 
     pivot.columns = [f"{col[2]}" for col in pivot.columns]
     table = ax.table(cellText=pivot.values, colLabels=pivot.columns, rowLabels=pivot.index, loc='center', bbox=[0, -0.4, 0.9, 0.2])
@@ -1381,7 +1381,7 @@ class Analyzer():
     print(hei_final_res_resp)
     #Plotting part
     feature = "TT Response"
-    base_df = self.hei_df[(~self.hei_df["Tetanous Serology"].isna()) & (~self.hei_df["HIV cp/mL"].isna())]
+    base_df = self.hei_df[(~self.hei_df["Tetanus Serology"].isna()) & (~self.hei_df["HIV cp/mL"].isna())]
     base_df_g = base_df.set_index('Age', append=True).set_index(feature, append = True).stack().to_frame().reset_index().rename(columns = {"level_3": "feature", 0: "value"}).drop("level_0", axis = "columns")
     base_df_g = base_df_g[base_df_g["Age"].isin(["entry", 5., 9., 10., 18.])]
 
@@ -2045,33 +2045,33 @@ class Analyzer():
   def supp_figure_3c(self):
     #Durability of TT Response in HEI and HEU
     #selection of data based on time points 
-    data_heu = self.heu_df.dropna(subset=['Tetanous Serology'])
-    data_heu.rename(columns={"Tetanous Serology": "Tetanous_Serology"}, inplace=True)
+    data_heu = self.heu_df.dropna(subset=['Tetanus Serology'])
+    data_heu.rename(columns={"Tetanus Serology": "Tetanus_Serology"}, inplace=True)
     data_heu = data_heu[data_heu["Age"].isin([5., 9., 10., 18.])]
     data_heu["Age"] = pd.to_numeric(data_heu["Age"])
-    data_hei = self.hei_df.dropna(subset=['Tetanous Serology'])
-    data_hei.rename(columns={"Tetanous Serology": "Tetanous_Serology"}, inplace=True)
+    data_hei = self.hei_df.dropna(subset=['Tetanus Serology'])
+    data_hei.rename(columns={"Tetanus Serology": "Tetanus_Serology"}, inplace=True)
     data_hei = data_hei[data_hei["Age"].isin([5., 9., 10., 18.])]
     data_hei["Age"] = pd.to_numeric(data_hei["Age"])
 
     # Combine the dataframes for analysis 
     data = pd.concat([data_heu, data_hei], axis=0, ignore_index=True)
-    data = data.dropna(subset=['Tetanous_Serology'])
+    data = data.dropna(subset=['Tetanus_Serology'])
     data = data[data["Age"] != "entry"]
     data["Age"] = pd.to_numeric(data["Age"])
 
     #compute mixed effect model
-    mixed_effects_model_heu = sm.MixedLM.from_formula("Tetanous_Serology ~ Age", groups='STUDY ID', data=data_heu)
+    mixed_effects_model_heu = sm.MixedLM.from_formula("Tetanus_Serology ~ Age", groups='STUDY ID', data=data_heu)
     result_heu = mixed_effects_model_heu.fit()
-    mixed_effects_model_hei = sm.MixedLM.from_formula("Tetanous_Serology ~ Age", groups='STUDY ID', data=data_hei)
+    mixed_effects_model_hei = sm.MixedLM.from_formula("Tetanus_Serology ~ Age", groups='STUDY ID', data=data_hei)
     result_hei = mixed_effects_model_hei.fit()
 
     #compute pearson correlation
-    corr_heu, pval_heu = stats.pearsonr(data_heu["Age"], data_heu["Tetanous_Serology"])
+    corr_heu, pval_heu = stats.pearsonr(data_heu["Age"], data_heu["Tetanus_Serology"])
     slope_heu = result_heu.params["Age"]
     intercept_heu = result_heu.params["Intercept"]
 
-    corr_hei, pval_hei = stats.pearsonr(data_hei["Age"], data_hei["Tetanous_Serology"])
+    corr_hei, pval_hei = stats.pearsonr(data_hei["Age"], data_hei["Tetanus_Serology"])
     slope_hei = result_hei.params["Age"]
     intercept_hei = result_hei.params["Intercept"]
 
@@ -2082,8 +2082,8 @@ class Analyzer():
 
     #plotting code
     fig, ax = plt.subplots(figsize = (10,10))
-    data_heu.plot(kind='scatter', x='Age', y='Tetanous_Serology', ax=ax, color='blue')
-    data_hei.plot(kind='scatter', x='Age', y='Tetanous_Serology', ax=ax, color='orange')
+    data_heu.plot(kind='scatter', x='Age', y='Tetanus_Serology', ax=ax, color='blue')
+    data_hei.plot(kind='scatter', x='Age', y='Tetanus_Serology', ax=ax, color='orange')
 
     text_heu = f'HEU r = {corr_heu:.2f}\nHEU p = {pval_heu:.2e}\nHEU slope = {slope_heu:.2f}\nHEU intercept = {intercept_heu:.2f}'
     text_hei = f'HEI r = {corr_hei:.2f}\nHEI p = {pval_hei:.2e}\nHEI slope = {slope_hei:.2f}\nHEI intercept = {intercept_hei:.2f}'
@@ -2096,10 +2096,10 @@ class Analyzer():
 
     ax.set_xlabel('Age (months)', fontsize = 20, labelpad = 20)
     ax.set_xticks([5, 9, 10, 18])
-    ax.set_ylabel('Tetanous Serology (IU/mL)', fontsize = 25, labelpad = 20)
+    ax.set_ylabel('Tetanus Serology (IU/mL)', fontsize = 25, labelpad = 20)
     ax.tick_params(axis='both', which='major', labelsize=20)
     ax.tick_params(axis='both', which='minor', labelsize=20)
-    ax.set_title('Durability of Tetanous Serology', pad = 50, fontsize = 30)
+    ax.set_title('Durability of Tetanus Serology', pad = 50, fontsize = 30)
     ax.legend(['HEU', "HEI", 'LMM fit HEU', 'LMM fit HEI'], prop={'size': 15}, markerscale=2., title_fontsize = "xx-large", fancybox = True, loc = "upper right")
     plt.tight_layout()
     plt.show()
@@ -2109,10 +2109,10 @@ class Analyzer():
     # filter data to include only "entry", 10 and 18 years old
     ages = ["entry", 5, 10, 18]
     #selection of data based on time points and column renaming
-    data_heu = self.heu_df.dropna(subset=['Tetanous Serology'])
-    data_heu.rename(columns={"Tetanous Serology": "Tetanous_Serology"}, inplace=True)
-    data_hei = self.hei_df.dropna(subset=['Tetanous Serology'])
-    data_hei.rename(columns={"Tetanous Serology": "Tetanous_Serology"}, inplace=True)
+    data_heu = self.heu_df.dropna(subset=['Tetanus Serology'])
+    data_heu.rename(columns={"Tetanus Serology": "Tetanus_Serology"}, inplace=True)
+    data_hei = self.hei_df.dropna(subset=['Tetanus Serology'])
+    data_hei.rename(columns={"Tetanus Serology": "Tetanus_Serology"}, inplace=True)
 
     data_age_heu = data_heu[data_heu["Age"].isin(ages)]
     data_age_hei = data_hei[data_hei["Age"].isin(ages)]
@@ -2135,31 +2135,31 @@ class Analyzer():
 
     for group in data_grouped_heu:
       # get the values for "entry" and "Age" = 10 and 18
-      values_entry = group[1][group[1]["Age"] == "entry"]["Tetanous_Serology"].values
-      values_5 = group[1][group[1]["Age"] == 5]["Tetanous_Serology"].values
-      values_10 = group[1][group[1]["Age"] == 10]["Tetanous_Serology"].values
-      values_18 = group[1][group[1]["Age"] == 18]["Tetanous_Serology"].values
+      values_entry = group[1][group[1]["Age"] == "entry"]["Tetanus_Serology"].values
+      values_5 = group[1][group[1]["Age"] == 5]["Tetanus_Serology"].values
+      values_10 = group[1][group[1]["Age"] == 10]["Tetanus_Serology"].values
+      values_18 = group[1][group[1]["Age"] == 18]["Tetanus_Serology"].values
     
       # get the paired values for "entry" and "Age" = 10
       for idx in group[1].index:
         if group[1].loc[idx, "Age"] == "entry":
             study_id = group[1].loc[idx, "STUDY ID"]
-            entry_value = group[1].loc[idx, "Tetanous_Serology"]
+            entry_value = group[1].loc[idx, "Tetanus_Serology"]
             try:
                 #save paired values
-                age_5_value = group[1][(group[1]["STUDY ID"] == study_id) & (group[1]["Age"] == 5)]["Tetanous_Serology"].values[0]
+                age_5_value = group[1][(group[1]["STUDY ID"] == study_id) & (group[1]["Age"] == 5)]["Tetanus_Serology"].values[0]
                 paired_values_5_heu.append((entry_value, age_5_value))
             except IndexError:
                 pass
             try:
                 #save paired values
-                age_10_value = group[1][(group[1]["STUDY ID"] == study_id) & (group[1]["Age"] == 10)]["Tetanous_Serology"].values[0]
+                age_10_value = group[1][(group[1]["STUDY ID"] == study_id) & (group[1]["Age"] == 10)]["Tetanus_Serology"].values[0]
                 paired_values_10_heu.append((entry_value, age_10_value))
             except IndexError:
                 pass
             try:
                 #save paired values
-                age_18_value = group[1][(group[1]["STUDY ID"] == study_id) & (group[1]["Age"] == 18)]["Tetanous_Serology"].values[0]
+                age_18_value = group[1][(group[1]["STUDY ID"] == study_id) & (group[1]["Age"] == 18)]["Tetanus_Serology"].values[0]
                 paired_values_18_heu.append((entry_value, age_18_value))
             except IndexError:
                 pass
@@ -2167,28 +2167,28 @@ class Analyzer():
     for group_hei in data_grouped_hei:
     
       # get the values for "entry" and "Age" = 10 and 18
-      values_entry = group_hei[1][group_hei[1]["Age"] == "entry"]["Tetanous_Serology"].values
-      values_5 = group_hei[1][group_hei[1]["Age"] == 5]["Tetanous_Serology"].values
-      values_10 = group_hei[1][group_hei[1]["Age"] == 10]["Tetanous_Serology"].values
-      values_18 = group_hei[1][group_hei[1]["Age"] == 18]["Tetanous_Serology"].values
+      values_entry = group_hei[1][group_hei[1]["Age"] == "entry"]["Tetanus_Serology"].values
+      values_5 = group_hei[1][group_hei[1]["Age"] == 5]["Tetanus_Serology"].values
+      values_10 = group_hei[1][group_hei[1]["Age"] == 10]["Tetanus_Serology"].values
+      values_18 = group_hei[1][group_hei[1]["Age"] == 18]["Tetanus_Serology"].values
     
       # get the paired values for "entry" and "Age" = 10
       for idx in group_hei[1].index:
         if group_hei[1].loc[idx, "Age"] == "entry":
             study_id = group_hei[1].loc[idx, "STUDY ID"]
-            entry_value = group_hei[1].loc[idx, "Tetanous_Serology"]
+            entry_value = group_hei[1].loc[idx, "Tetanus_Serology"]
             try:
-                age_5_value = group_hei[1][(group_hei[1]["STUDY ID"] == study_id) & (group_hei[1]["Age"] == 5)]["Tetanous_Serology"].values[0]
+                age_5_value = group_hei[1][(group_hei[1]["STUDY ID"] == study_id) & (group_hei[1]["Age"] == 5)]["Tetanus_Serology"].values[0]
                 paired_values_5_hei.append((entry_value, age_5_value))
             except IndexError:
                 pass
             try:
-                age_10_value = group_hei[1][(group_hei[1]["STUDY ID"] == study_id) & (group_hei[1]["Age"] == 10)]["Tetanous_Serology"].values[0]
+                age_10_value = group_hei[1][(group_hei[1]["STUDY ID"] == study_id) & (group_hei[1]["Age"] == 10)]["Tetanus_Serology"].values[0]
                 paired_values_10_hei.append((entry_value, age_10_value))
             except IndexError:
                 pass
             try:
-                age_18_value = group_hei[1][(group_hei[1]["STUDY ID"] == study_id) & (group_hei[1]["Age"] == 18)]["Tetanous_Serology"].values[0]
+                age_18_value = group_hei[1][(group_hei[1]["STUDY ID"] == study_id) & (group_hei[1]["Age"] == 18)]["Tetanus_Serology"].values[0]
                 paired_values_18_hei.append((entry_value, age_18_value))
             except IndexError:
                 pass
@@ -2222,8 +2222,8 @@ class Analyzer():
       ax.text(0.8, 0.9, f"r= {corr:.2f}\np={pval:.2f}", transform=ax.transAxes, va='top', size = 20)
 
       # Add the x and y labels
-      ax.set_xlabel("Tetanous Serology at Entry", fontsize = 20, labelpad = 10)
-      ax.set_ylabel(f"Tetanous Serology at Age {age}", fontsize = 20, labelpad = 10)
+      ax.set_xlabel("Tetanus Serology at Entry", fontsize = 20, labelpad = 10)
+      ax.set_ylabel(f"Tetanus Serology at Age {age}", fontsize = 20, labelpad = 10)
       ax.tick_params(axis='both', which='major', labelsize=20)
       ax.tick_params(axis='both', which='minor', labelsize=20)
 
@@ -2248,8 +2248,8 @@ class Analyzer():
       ax.text(0.8, 0.9, f"r= {corr:.2f}\np={pval:.2f}", transform=ax.transAxes, va='top', size = 20)
 
       # Add the x and y labels
-      ax.set_xlabel("Tetanous Serology at Entry", fontsize = 20, labelpad = 10)
-      ax.set_ylabel(f"Tetanous Serology at Age {age}", fontsize = 20, labelpad = 10)
+      ax.set_xlabel("Tetanus Serology at Entry", fontsize = 20, labelpad = 10)
+      ax.set_ylabel(f"Tetanus Serology at Age {age}", fontsize = 20, labelpad = 10)
       ax.tick_params(axis='both', which='major', labelsize=20)
       ax.tick_params(axis='both', which='minor', labelsize=20)
 
@@ -2259,14 +2259,14 @@ class Analyzer():
   def supp_figure_PWC(self):
     #Power calculation based on differences in TT Serology at 5 months
     # HEU meand and quartiles
-    Amd = self.heu_df[self.heu_df["Age"] == 5.]["Tetanous Serology"].mean()
-    Aq1 = np.percentile(self.heu_df[(self.heu_df["Age"] == 5.) & (~self.heu_df["Tetanous Serology"].isna())]["Tetanous Serology"], 25)
-    Aq3 = np.percentile(self.heu_df[(self.heu_df["Age"] == 5.) & (~self.heu_df["Tetanous Serology"].isna())]["Tetanous Serology"], 75)
+    Amd = self.heu_df[self.heu_df["Age"] == 5.]["Tetanus Serology"].mean()
+    Aq1 = np.percentile(self.heu_df[(self.heu_df["Age"] == 5.) & (~self.heu_df["Tetanus Serology"].isna())]["Tetanus Serology"], 25)
+    Aq3 = np.percentile(self.heu_df[(self.heu_df["Age"] == 5.) & (~self.heu_df["Tetanus Serology"].isna())]["Tetanus Serology"], 75)
 
     # HEI mean and quartiles
-    Bmd = self.hei_df[self.hei_df["Age"] == 5.]["Tetanous Serology"].mean()
-    Bq1 = np.percentile(self.hei_df[(self.hei_df["Age"] == 5.) & (~self.hei_df["Tetanous Serology"].isna())]["Tetanous Serology"], 25)
-    Bq3 = np.percentile(self.hei_df[(self.hei_df["Age"] == 5.) & (~self.hei_df["Tetanous Serology"].isna())]["Tetanous Serology"], 75)
+    Bmd = self.hei_df[self.hei_df["Age"] == 5.]["Tetanus Serology"].mean()
+    Bq1 = np.percentile(self.hei_df[(self.hei_df["Age"] == 5.) & (~self.hei_df["Tetanus Serology"].isna())]["Tetanus Serology"], 25)
+    Bq3 = np.percentile(self.hei_df[(self.hei_df["Age"] == 5.) & (~self.hei_df["Tetanus Serology"].isna())]["Tetanus Serology"], 75)
 
     # Mean
     Am = (Aq1 + Amd + Aq3)/3
@@ -2280,8 +2280,8 @@ class Analyzer():
     SDpooled = ((Asd**2 + Bsd**2)/2)**0.5 # SDpooled = √((SD1^2 + SD2^2) ⁄ 2)
 
     # Calculate Cohen's d and perform a two-tailed t-test with alpha=0.01 and power=pwlim/100
-    effsize = pg.compute_effsize(self.heu_df[(self.heu_df["Age"] == 5.) & (~self.heu_df["Tetanous Serology"].isna())]["Tetanous Serology"], 
-                                 self.hei_df[(self.hei_df["Age"] == 5.) & (~self.hei_df["Tetanous Serology"].isna())]["Tetanous Serology"], 
+    effsize = pg.compute_effsize(self.heu_df[(self.heu_df["Age"] == 5.) & (~self.heu_df["Tetanus Serology"].isna())]["Tetanus Serology"], 
+                                 self.hei_df[(self.hei_df["Age"] == 5.) & (~self.hei_df["Tetanus Serology"].isna())]["Tetanus Serology"], 
                                  paired=False, 
                                  eftype='cohen')
 
