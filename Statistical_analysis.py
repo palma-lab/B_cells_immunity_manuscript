@@ -222,24 +222,19 @@ def binary_performances(y_true, y_prob, thresh=0.5, labels=['Positives',"Negativ
   
 
 class Analyzer():
-  def __init__(self, file_path, meta_cols, date_cols, cat_cols):
+  def __init__(self, file_path, meta_cols, cat_cols):
     self.df = pd.read_excel(file_path)
     self.meta_cols = meta_cols
-    self.dates = date_cols
     self.cat_cols = cat_cols
+    
     #Vaccine Response Classification
     self.feats_resp = ["TT Response", "Measles Response"]
     self.time_points = time_points = ["entry", 2., 5., 9., 10., 18., 19.]
-    #For our analysis we considered both UP and borderline as UP
-    self.df.replace({"TT Response": {"R": "P", "LTM": "P", "RB": "UP", "NM": "UP", "PB": "UP", "MB": "UP", "UR": "UP"}}, inplace = True)
-    self.df.replace({"Measles Response": {"R": "P", "LTM": "P", "RB": "UP", "NM": "UP", "PB": "UP", "MB": "UP", "UR": "UP"}}, inplace = True)
-    #First data filter: Time Points
-    self.df = self.df[self.df["Age"].isin(self.time_points)].reset_index(drop = True)
-    #Second data filter: removal of missing experimental data
-    self.df = self.df[self.df['VISIT N'].notna()].reset_index(drop = True)
+    
     #Division between patients who received an extra measle vaccination ad those who didn't
     self.nog3_df = self.df[self.df["EXTRA VACCINATION"] == 0].reset_index(drop = True)
     self.g3_df = self.df[self.df["EXTRA VACCINATION"] == 1].reset_index(drop = True)
+    
     #Division of database by Groups in analysis: 
     #HEI
     self.hei_df = self.df[self.df["Group"] == "HEI"].reset_index(drop = True)
@@ -258,18 +253,11 @@ class Analyzer():
   
   #Define columns containing metadata information
   def metadata(self):
-    '''Metadata (md) should follow a format where
-       md[0] = ID;
-       md[1] = Age;
-       md[2] = Group
-       md[3:] = other datas '''
-
-    return self.df.columns[self.meta_cols] ### positions = [0,1,20]
+    return self.df.columns[self.meta_cols] 
 
   #Define columns that can be analised
   def features(self):
-    #return self.df.columns[3:]
-    return self.df.drop(self.date_cols(), axis = 1).columns
+    return self.df.columns[3:]
 
   #Define columns containing categorical infomration
   def cat_features(self):
@@ -281,15 +269,11 @@ class Analyzer():
 
   #Define columns related to clinical data
   def clinical_feat(self):
-    return self.df.columns[7:14]
-
-  #Define columns related to ematochrit data
-  def blood_feat(self):
-    return self.df.columns[47:65]
+    return self.df.columns[4:11]
 
   #Define columns related to FACS data
   def facs_feat(self):
-    return self.df.columns[85:415]
+    return self.df.columns[41:371]
 
   def wb_abs(self):
     return ['p17', 'p24', 'p55', 'p31', 'p51', 'p66', 'gp41', 'gp120', 'gp160','p39']
@@ -320,7 +304,7 @@ class Analyzer():
     n = 0
     for i in it:
       if i in self.metadata():  
-        #if pd.api.types.is_categorical_dtype(self.df[i]):
+        #if i in self.df[i].dtype == 'object':
         if i in self.cat_features():
           test_name = "Fisher's exact test"
           obs_x = pd.crosstab(g1[i], 
@@ -365,8 +349,7 @@ class Analyzer():
                             "odds": odds, 
                             "p-value": np.format_float_scientific(pval, 2), 
                             "p-adj": np.format_float_scientific(pval, 2)}
-        continue
-      else:
+      elif pd.api.types.is_numeric_dtype(self.df[i]):
         try: 
           #validate normality assumption
           if norm_test(g1, g2, i, "SW"):
@@ -488,7 +471,23 @@ class Analyzer():
     return table_df
 
   def make_pca_df(self, save = False, outFile = None):
-    pca_df = self.df[list(self.metadata()[:3]) + [self.df.columns[2]] + [self.df.columns[8]] + [self.df.columns[12]] + list(list(self.facs_feat())) + list(self.df.columns[-51:-45]) + ["AGE of ART initiation in days"] + ["Entry Viremia"] + ["HIV cp/mL"] + ["CD4%"] + ["WHO stage"] + ["Age"]]
+    pca_df = self.df[['STUDY ID', 
+                      'AGE IN MONTHS (days/30)', 
+                      'Group', 
+                      "VISIT N", 
+                      "AGE IN MONTHS", 
+                      "AGE IN DAYS"] + list(list(self.facs_feat())) + ["Measles Serology", 
+                                                                       "Tetanous Serology", 
+                                                                       "Measles Response", 
+                                                                       "TT Response", 
+                                                                       "WB score", 
+                                                                       "EXTRA VACCINATION", 
+                                                                       "AGE of ART initiation in days", 
+                                                                       "Entry Viremia", 
+                                                                       "HIV cp/mL", 
+                                                                       "CD4%", 
+                                                                       "WHO stage", 
+                                                                       "Age"]]
 
     pca_df = pca_df[pca_df[self.facs_feat()].isnull().sum(axis = 1) <= (len(self.facs_feat())-1)]
 
@@ -2307,32 +2306,14 @@ class Analyzer():
 
          
 # PREPARING INPUT DATA
-a = range(7)
-age = 9
-b = 14 #Patient Type
-c = 15
-d = range(19, 39)
-e = range(65, 85)
-f = 84 #Group
-g = [-10, -7, -6, -3, -2, -1] 
-
-
-metaFeatures = [0, 9, 84, 1, 2, 3, 4, 5, 6, 14, 15, 16]
-for i in d:
-  metaFeatures += [i]
-for i in e:
-  metaFeatures += [i]
-for i in g:
-  metaFeatures += [i]
-
-datesFeatures = [3, 4, 5, 25, 27, 30, 31, 34]
-catFeatures = [6]# (sex)
+metaFeatures = list(range(3, 41)) #columns with metadata
+catFeatures = [2] #(sex)
 
 r01_base = "R01_DB.xlsx"
 path = ""
 
 #initializing class
-analysis = Analyzer(r01_base, metaFeatures, datesFeatures, catFeatures)
+analysis = Analyzer(r01_base, metaFeatures, catFeatures)
 
 #Plots in manuscript
 analysis.figure_1a()
@@ -2353,7 +2334,8 @@ analysis.make_pca_df(save = True, outFile = f"{path}R01_DB_PCA.xlsx")
 
 #model training, computationally expensive
 analysis.train_nested_xgb(outFile = f"{path}model_xgb")    
-analysis.supp_table_2()
+
+supplementay_table_2 = analysis.supp_table_2()
 analysis.supp_figure_3a()
 analysis.supp_figure_3b()
 analysis.supp_figure_3c()
