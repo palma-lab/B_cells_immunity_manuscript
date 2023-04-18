@@ -377,6 +377,7 @@ class Analyzer():
             test_name = "Mann-Whitney U test"
             stat_test = stats.mannwhitneyu(g1[i].dropna(),
                                            g2[i].dropna(),
+                                           nan_policy = "omit",
                                            alternative = "two-sided")
           
           #save results separately for abs and FACS features to perform bonferroni correction
@@ -880,6 +881,15 @@ class Analyzer():
         age = "entry"
       if "Tetanus Serology" in cs_hei_de_final_res[age].keys():
         pvalues_hei.append(float(cs_hei_de_final_res[age]["Tetanus Serology"]["p-value"]))
+    
+    #Revision 2, Reviewer #2, mannwhitney test ("one-tailed") for TT Serology at 10-18 and 19 mths
+    for i in [10., 18.]:
+      group1 = self.heu_df.loc[self.heu_df["Age"] == i]["Tetanus Serology"]
+      group1 = group1[~np.isnan(group1)]
+      group2 = self.hei_df.loc[self.hei_df["Age"] == i]["Tetanus Serology"]
+      group2 = group2[~np.isnan(group2)]
+      result = mannwhitneyu(group1, group2, nan_policy = "omit", alternative = "greater")
+      print(f'{i} months Mann-Whitney U test:', result)
     
     sns.set_style("white")
     sns.set_context("poster")
