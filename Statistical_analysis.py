@@ -2290,9 +2290,18 @@ class Analyzer():
     n = np.arange(5, 80, 5)  # Incrementing sample size
     # Compute the achieved power
     pwr = pg.power_ttest(d=d, n=n, contrast='two-samples')
+    
+    # Find the sample size at which power reaches 0.8
+    idx = np.where(pwr >= 0.8)[0][0]
+    x = n[idx]
+    y = pwr[idx]
+    print("Sample size: ", x)
+    print("Power: ", y)
+    
     # Start the plot
     plt.plot(n, pwr, 'ko-.')
     plt.axhline(0.8, color='r', ls=':')
+    plt.axvline(x, color='r', ls=':')
     plt.xlabel('Sample size')
     plt.ylabel('Power (1 - type II error)')
     plt.title('Achieved power of a paired T-test')
