@@ -831,6 +831,9 @@ class Analyzer():
     base_df["utils"] = base_df[["Group", "EXTRA VACCINATION"]].apply(tuple, axis = 1)
     base_df = base_df[base_df["Tetanus Serology"].notna()].sort_values(by = ["STUDY ID"])
     base_df.replace({"entry": 1., 2.: 1.}, inplace = True)
+    
+    #removal of CS Group points after entry (not enough to be used)
+    base_df = base_df.drop(base_df[(base_df["Group"] == "CS") & (base_df["Age"] != 1.)].index)
 
     #pairs and pvalues for statannotation
     pairs = []
@@ -902,7 +905,7 @@ class Analyzer():
     trans = transforms.blended_transform_factory(ax.get_yticklabels()[0].get_transform(), ax.transData)
     ax.text(0, 0.25, "0.1", color="red", transform=trans, ha="right", va="center")
     ax.text(0, 0.501, "0.5", color="red", transform=trans, ha="right", va="center")
-    ax.text(0.04, 0.65, "LOD", color="red", transform=trans, ha="right", va="center")
+    #ax.text(0.05, 0.65, "LOD", color="red", transform=trans, ha="right", va="center")
 
     ax.tick_params(axis='both', which='major', labelsize=40)
     ax.tick_params(axis='both', which='minor', labelsize=40)
@@ -923,7 +926,7 @@ class Analyzer():
 
     h, l = ax.get_legend_handles_labels()
     plt.legend(h[3:],['Control', 'HEU', 'HEI'], prop={'size': 25}, markerscale=2., fancybox = True)
-    plt.ylabel("Tetanus Ab mlU/mL", labelpad = 40)
+    plt.ylabel("Tetanus Ab U/mL", labelpad = 40)
     plt.xlabel("Age in months", labelpad = 40)
     plt.title("Tetanus Serology in TARA cohort", fontsize = 40, y = 1, pad = 150, fontname="Times New Roman Bold")
 
