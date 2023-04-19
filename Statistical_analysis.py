@@ -265,7 +265,7 @@ class Analyzer():
 
   #Define columns containing date information
   def date_cols(self):
-    return self.df.columns[self.dates]  ########SI PUO MIGLIORARE PER CAPIRE DA SOLO QUALI SIANO (IL DATABASE VA CONSIDERATO PULITO ORMAI)
+    return self.df.columns[self.dates]  #######
 
   #Define columns related to clinical data
   def clinical_feat(self):
